@@ -4700,6 +4700,11 @@ func (in *LoadBalancerAccessSpec) DeepCopyInto(out *LoadBalancerAccessSpec) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.PreserveClientIP != nil {
+		in, out := &in.PreserveClientIP, &out.PreserveClientIP
+		*out = new(bool)
+		**out = **in
+	}
 	if in.Subnets != nil {
 		in, out := &in.Subnets, &out.Subnets
 		*out = make([]LoadBalancerSubnetSpec, len(*in))

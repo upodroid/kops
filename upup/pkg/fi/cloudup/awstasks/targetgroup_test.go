@@ -100,3 +100,58 @@ func TestTargetGroupHealthCheckChange(t *testing.T) {
 	// The change must have been applied, so a subsequent run sees no changes.
 	checkNoChanges(t, ctx, cloud, buildTasks(elbv2types.ProtocolEnumHttps, s("/healthz")))
 }
+
+func TestTargetGroupPreserveClientIPChange(t *testing.T) {
+	ctx := context.TODO()
+
+	cloud := awsup.BuildMockAWSCloud("us-east-1", "abc")
+	c := &mockec2.MockEC2{}
+	cloud.MockEC2 = c
+	cloud.MockELBV2 = &mockelbv2.MockELBV2{EC2: c}
+
+	vpc, err := c.CreateVpc(ctx, &ec2.CreateVpcInput{
+		CidrBlock: aws.String("172.20.0.0/16"),
+	})
+	if err != nil {
+		t.Fatalf("error creating test VPC: %v", err)
+	}
+
+	buildTasks := func(preserveClientIP string) map[string]fi.CloudupTask {
+		attrs := map[string]string{
+			TargetGroupAttributeDeregistrationDelayConnectionTerminationEnabled: "true",
+			TargetGroupAttributeDeregistrationDelayTimeoutSeconds:               "30",
+		}
+		if preserveClientIP != "" {
+			attrs[TargetGroupAttributePreserveClientIPEnabled] = preserveClientIP
+		}
+		vpc1 := &VPC{
+			Name:      s("vpc1"),
+			Lifecycle: fi.LifecycleSync,
+			CIDR:      s("172.20.0.0/16"),
+			Shared:    new(true),
+			ID:        vpc.Vpc.VpcId,
+		}
+		tg1 := &TargetGroup{
+			Name:                s("tg1"),
+			Lifecycle:           fi.LifecycleSync,
+			VPC:                 vpc1,
+			Tags:                map[string]string{"Name": "tg1"},
+			Protocol:            elbv2types.ProtocolEnumTcp,
+			Port:                new(int32(443)),
+			Attributes:          attrs,
+			Interval:            new(int32(10)),
+			HealthyThreshold:    new(int32(2)),
+			UnhealthyThreshold:  new(int32(2)),
+			HealthCheckProtocol: elbv2types.ProtocolEnumTcp,
+			Shared:              new(false),
+		}
+		return map[string]fi.CloudupTask{
+			"vpc1": vpc1,
+			"tg1":  tg1,
+		}
+	}
+
+	runTasks(t, cloud, buildTasks(""))
+	runTasks(t, cloud, buildTasks("false"))
+	checkNoChanges(t, ctx, cloud, buildTasks("false"))
+}

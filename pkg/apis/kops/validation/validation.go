@@ -277,6 +277,9 @@ func validateClusterSpec(spec *kops.ClusterSpec, c *kops.Cluster, fieldPath *fie
 			if lbSpec.CrossZoneLoadBalancing != nil {
 				allErrs = append(allErrs, field.Forbidden(lbPath.Child("crossZoneLoadBalancing"), "crossZoneLoadBalancing is only supported on AWS"))
 			}
+			if lbSpec.PreserveClientIP != nil {
+				allErrs = append(allErrs, field.Forbidden(lbPath.Child("preserveClientIP"), "preserveClientIP is only supported on AWS"))
+			}
 			if lbSpec.AccessLog != nil {
 				allErrs = append(allErrs, field.Forbidden(lbPath.Child("accessLog"), "accessLog is only supported on AWS"))
 			}

@@ -117,6 +117,10 @@ spec:
                         description: IdleTimeoutSeconds is unused
                         format: int64
                         type: integer
+                      preserveClientIP:
+                        description: PreserveClientIP configures whether client IP
+                          preservation is enabled on the load balancer target groups.
+                        type: boolean
                       securityGroupOverride:
                         description: SecurityGroupOverride overrides the default Kops
                           created SG for the load balancer.

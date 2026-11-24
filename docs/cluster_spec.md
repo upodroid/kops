@@ -65,12 +65,13 @@ spec:
       useForInternalApi: true
 ```
 
-You can also set the API load balancer to be cross-zone:
+You can also set the API load balancer to be cross-zone or disable client IP preservation on its target groups:
 ```yaml
 spec:
   api:
     loadBalancer:
       crossZoneLoadBalancing: true
+      preserveClientIP: false
 ```
 
 ### Load Balancer Class

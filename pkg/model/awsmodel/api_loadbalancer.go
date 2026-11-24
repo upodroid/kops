@@ -19,6 +19,7 @@ package awsmodel
 import (
 	"fmt"
 	"sort"
+	"strconv"
 
 	elbv2types "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -244,6 +245,9 @@ func (b *APILoadBalancerBuilder) Build(c *fi.CloudupModelBuilderContext) error {
 			groupAttrs := map[string]string{
 				awstasks.TargetGroupAttributeDeregistrationDelayConnectionTerminationEnabled: "true",
 				awstasks.TargetGroupAttributeDeregistrationDelayTimeoutSeconds:               "30",
+			}
+			if lbSpec.PreserveClientIP != nil {
+				groupAttrs[awstasks.TargetGroupAttributePreserveClientIPEnabled] = strconv.FormatBool(*lbSpec.PreserveClientIP)
 			}
 
 			{

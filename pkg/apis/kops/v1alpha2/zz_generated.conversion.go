@@ -6205,6 +6205,7 @@ func autoConvert_v1alpha2_LoadBalancerAccessSpec_To_kops_LoadBalancerAccessSpec(
 	out.SSLCertificate = in.SSLCertificate
 	out.SSLPolicy = in.SSLPolicy
 	out.CrossZoneLoadBalancing = in.CrossZoneLoadBalancing
+	out.PreserveClientIP = in.PreserveClientIP
 	if in.Subnets != nil {
 		in, out := &in.Subnets, &out.Subnets
 		*out = make([]kops.LoadBalancerSubnetSpec, len(*in))
@@ -6242,6 +6243,7 @@ func autoConvert_kops_LoadBalancerAccessSpec_To_v1alpha2_LoadBalancerAccessSpec(
 	out.SSLCertificate = in.SSLCertificate
 	out.SSLPolicy = in.SSLPolicy
 	out.CrossZoneLoadBalancing = in.CrossZoneLoadBalancing
+	out.PreserveClientIP = in.PreserveClientIP
 	if in.Subnets != nil {
 		in, out := &in.Subnets, &out.Subnets
 		*out = make([]LoadBalancerSubnetSpec, len(*in))

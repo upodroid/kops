@@ -3082,3 +3082,47 @@ func TestValidateNodeTerminationHandlerSQSMsgVisibilityTimeoutSeconds(t *testing
 		testErrors(t, g.Input, errs, g.ExpectedErrors)
 	}
 }
+
+func TestValidateLoadBalancerPreserveClientIP(t *testing.T) {
+	baseSpec := func(provider kops.CloudProviderSpec) *kops.Cluster {
+		return &kops.Cluster{
+			Spec: kops.ClusterSpec{
+				CloudProvider: provider,
+				ConfigStore: kops.ConfigStoreSpec{
+					Base: "memfs://tests/cluster.example.com",
+				},
+				EtcdClusters: []kops.EtcdClusterSpec{
+					{
+						Name: "main",
+						Members: []kops.EtcdMemberSpec{
+							{Name: "a", InstanceGroup: new("master-a")},
+						},
+					},
+				},
+				API: kops.APISpec{
+					LoadBalancer: &kops.LoadBalancerAccessSpec{
+						Type:             kops.LoadBalancerTypePublic,
+						PreserveClientIP: new(false),
+					},
+				},
+			},
+		}
+	}
+
+	gceCluster := baseSpec(kops.CloudProviderSpec{GCE: &kops.GCESpec{Project: "test-proj"}})
+	gceCluster.Spec.Networking.Subnets = []kops.ClusterSubnetSpec{{Name: "sub1", Region: "us-east1"}}
+	errs := validateClusterSpec(&gceCluster.Spec, gceCluster, field.NewPath("spec"), false)
+	testErrors(t, "gce preserveClientIP", errs, []string{"Forbidden::spec.api.loadBalancer.preserveClientIP"})
+
+	awsCluster := baseSpec(kops.CloudProviderSpec{AWS: &kops.AWSSpec{}})
+	awsCluster.Spec.Networking = kops.NetworkingSpec{
+		NetworkCIDR:           "10.0.0.0/16",
+		NonMasqueradeCIDR:     "100.64.0.0/10",
+		ServiceClusterIPRange: "100.64.0.0/13",
+		Subnets: []kops.ClusterSubnetSpec{
+			{Name: "us-test-1a", Zone: "us-test-1a", CIDR: "10.0.1.0/24", Type: kops.SubnetTypePublic},
+		},
+	}
+	errs = validateClusterSpec(&awsCluster.Spec, awsCluster, field.NewPath("spec"), false)
+	testErrors(t, "aws preserveClientIP", errs, []string{})
+}

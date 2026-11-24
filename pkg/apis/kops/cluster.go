@@ -586,6 +586,8 @@ type LoadBalancerAccessSpec struct {
 	SSLPolicy *string `json:"sslPolicy,omitempty"`
 	// CrossZoneLoadBalancing allows you to enable the cross zone load balancing
 	CrossZoneLoadBalancing *bool `json:"crossZoneLoadBalancing,omitempty"`
+	// PreserveClientIP configures whether client IP preservation is enabled on the load balancer target groups.
+	PreserveClientIP *bool `json:"preserveClientIP,omitempty"`
 	// Subnets allows you to specify the subnets that must be used for the load balancer
 	Subnets []LoadBalancerSubnetSpec `json:"subnets,omitempty"`
 	// AccessLog is the configuration of access logs.

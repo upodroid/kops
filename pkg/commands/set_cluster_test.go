@@ -265,6 +265,21 @@ func TestSetClusterFields(t *testing.T) {
 				},
 			},
 		},
+		{
+			Fields: []string{
+				"spec.api.loadBalancer.preserveClientIP=false",
+			},
+			Input: kops.Cluster{},
+			Output: kops.Cluster{
+				Spec: kops.ClusterSpec{
+					API: kops.APISpec{
+						LoadBalancer: &kops.LoadBalancerAccessSpec{
+							PreserveClientIP: new(false),
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, g := range grid {

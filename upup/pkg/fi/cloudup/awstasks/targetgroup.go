@@ -42,6 +42,9 @@ const (
 	// to wait before changing the state of a deregistering target from draining to unused.
 	// https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html#deregistration-delay
 	TargetGroupAttributeDeregistrationDelayTimeoutSeconds = "deregistration_delay.timeout_seconds"
+	// TargetGroupAttributePreserveClientIPEnabled indicates whether client IP preservation is enabled.
+	// https://docs.aws.amazon.com/elasticloadbalancing/latest/network/edit-target-group-attributes.html#client-ip-preservation
+	TargetGroupAttributePreserveClientIPEnabled = "preserve_client_ip.enabled"
 )
 
 // +kops:fitask
@@ -451,6 +454,7 @@ type terraformTargetGroup struct {
 	VPCID                 *terraformWriter.Literal        `cty:"vpc_id"`
 	ConnectionTermination string                          `cty:"connection_termination"`
 	DeregistrationDelay   string                          `cty:"deregistration_delay"`
+	PreserveClientIP      *string                         `cty:"preserve_client_ip"`
 	Tags                  map[string]string               `cty:"tags"`
 	HealthCheck           terraformTargetGroupHealthCheck `cty:"health_check"`
 }
@@ -494,6 +498,9 @@ func (_ *TargetGroup) RenderTerraform(t *terraform.TerraformTarget, a, e, change
 		}
 		if attr == TargetGroupAttributeDeregistrationDelayTimeoutSeconds {
 			tf.DeregistrationDelay = val
+		}
+		if attr == TargetGroupAttributePreserveClientIPEnabled {
+			tf.PreserveClientIP = new(val)
 		}
 	}
 
